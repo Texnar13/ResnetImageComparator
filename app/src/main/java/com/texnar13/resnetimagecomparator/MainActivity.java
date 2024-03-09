@@ -45,6 +45,7 @@ public class MainActivity extends AppCompatActivity {
     /*
      * 0 - resnet18_traced
      * 1 - deeplabv3_scripted //deeplabv3_resnet101
+     * 2 - mobilenet_v3_small
      * */
 
     // кнопки Action bar
@@ -171,6 +172,10 @@ public class MainActivity extends AppCompatActivity {
                 module = LiteModuleLoader.load(MainActivity.fetchModelFile(
                         MainActivity.this, "deeplabv3_scripted.ptl"));
                 break;
+            case 2:
+                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
+                        MainActivity.this, "mobilenet_v3_small.ptl"));
+                break;
             default: // 0
                 module = LiteModuleLoader.load(MainActivity.fetchModelFile(
                         MainActivity.this, "resnet18_traced.ptl"));
@@ -198,6 +203,29 @@ public class MainActivity extends AppCompatActivity {
                 // вывод
                 ((TextView) findViewById(R.id.main_activity_status_text))
                         .setText("3 len = " + score_arr.length);
+                break;
+            }
+            case 2: {
+                final Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
+                score_arr = outputTensor.getDataAsFloatArray();
+
+                // Fetch the index of the value with maximum score
+                float max_score = -Float.MAX_VALUE;
+                int ms_ix = -1;
+                for (int i = 0; i < score_arr.length; i++) {
+                    if (score_arr[i] > max_score) {
+                        max_score = score_arr[i];
+                        ms_ix = i;
+                    }
+                }
+
+                // Находим название в листе основанном на индексах
+                String detected_class = ModelClasses.MODEL_CLASSES[ms_ix];
+
+
+                // вывод
+                ((TextView) findViewById(R.id.main_activity_status_text))
+                        .setText(detected_class);
                 break;
             }
             default: { // 0
