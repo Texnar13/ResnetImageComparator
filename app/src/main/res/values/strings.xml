@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ResnetImageComparator</string>
+
+    <string-array name="modules_names">
+        <item>resnet18_traced</item>
+        <item>deeplabv3_scripted</item>
+    </string-array>
+</resources>
