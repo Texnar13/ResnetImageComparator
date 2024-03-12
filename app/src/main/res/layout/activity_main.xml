@@ -77,7 +77,7 @@
     <Spinner
         android:id="@+id/main_activity_spinner"
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="@dimen/button_size"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -95,14 +95,26 @@
     <TextView
         android:id="@+id/main_activity_status_text"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         app:layout_constrainedHeight="true"
         android:padding="5dp"
+        android:singleLine="true"
         android:text="Статус: выберите два изображения для сравнения"
-        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/main_activity_guide_h_bottom" />
+
+
+    <TextView
+        android:id="@+id/main_activity_log_text"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        app:layout_constrainedHeight="true"
+        android:padding="5dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/main_activity_status_text" />
 
     <ProgressBar
         android:id="@+id/main_activity_status_progressBar"
@@ -115,7 +127,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/main_activity_status_text" />
+        app:layout_constraintTop_toTopOf="@+id/main_activity_guide_h_bottom" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

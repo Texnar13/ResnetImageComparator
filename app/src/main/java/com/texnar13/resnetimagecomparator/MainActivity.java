@@ -6,15 +6,21 @@ import androidx.core.app.NavUtils;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.preference.PreferenceManager;
 import android.provider.MediaStore;
+import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,7 +51,7 @@ public class MainActivity extends AppCompatActivity {
     private static final int RESULT_LOAD_LEFT_IMAGE = 1;
     private static final int RESULT_LOAD_RIGHT_IMAGE = 2;
 
-    // какая модель выбрана
+    // какая модель выбрана todo сделать сохранение во временную переменную во время обсчета
     private int currentModule = 0;
     /*
      * 0 - resnet18_traced
@@ -89,7 +95,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_main);
+
+        // инициализируем значения по умолчанию для прогов
+        SharedPreferences preferences =
+                PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        // если поля еще не созданы, создаем
+        if (!preferences.contains(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[0])) {
+            SharedPreferences.Editor editor = preferences.edit();
+            for (int i = 0; i < SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID.length; i++) {
+                editor.putFloat(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[i],
+                        SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID_DEFAULT[i]);
+                editor.putFloat(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_COSINE[i],
+                        SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_COSINE_DEFAULT[i]);
+            }
+            editor.apply();
+        }
+
 
         // Назначение обработчиков
 
@@ -144,6 +167,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        String text = "<font color=#cc2929>R</font> <font color=#00FF00>G</font> <font color=#0000FF>B</font>";
+        ((TextView) findViewById(R.id.main_activity_log_text)).setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+
 
         // обратная связь от потока
         modelCalculationLogging = new Handler() {
@@ -152,11 +178,49 @@ public class MainActivity extends AppCompatActivity {
                 super.handleMessage(msg);
 
                 if (msg.what == 777) {
-                    TextView outText = findViewById(R.id.main_activity_status_text);
+                    TextView outText = findViewById(R.id.main_activity_log_text);
                     outText.setText(outText.getText() + msg.obj.toString());
                 }
+                // сигнал о завершении работы модели и возвращение результатов расчетов для статуса
                 if (msg.what == 778) {
+                    // сигнал о завершении работы модели
                     onCalculationEnd();
+
+
+                    // просчитываем порог
+
+                    PointF values = (PointF) msg.obj;
+
+                    // загрузка данных из SP
+                    SharedPreferences preferences =
+                            PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    float euclid = preferences.getFloat(
+                            SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[currentModule],
+                            SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID_DEFAULT[currentModule]);
+                    float cosine = preferences.getFloat(
+                            SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_COSINE[currentModule],
+                            SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_COSINE_DEFAULT[currentModule]
+                    );
+
+                    // Вывод пользователю
+                    TextView statusText = findViewById(R.id.main_activity_status_text);
+                    if (values.x > euclid && values.y > cosine) {
+                        // вне порога везде
+                        statusText.setText("Евклид.: Нет Сосинусн.: Нет");
+                        statusText.setTextColor(getResources().getColor(R.color.status_text_color_no_match));
+                    } else if (values.y > cosine) {
+                        // вне порога по косинусу
+                        statusText.setText("Евклид.: Да Сосинусн.: Нет");
+                        statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
+                    } else if (values.x > euclid) {
+                        // вне порога по евклиду
+                        statusText.setText("Евклид.: Нет Сосинусн.: Да");
+                        statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
+                    } else {
+                        // в пороге
+                        statusText.setText("Евклид.: Да Сосинусн.: Да");
+                        statusText.setTextColor(getResources().getColor(R.color.status_text_color_its_match));
+                    }
                 }
             }
         };
@@ -170,7 +234,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         modelCalculationLogging = null;
-        modelCalculation.stop();
+        modelCalculation = null;
         super.onDestroy();
     }
 
@@ -180,8 +244,11 @@ public class MainActivity extends AppCompatActivity {
         calculaitingStatate = 4;
 
         // чистим вывод
-        ((TextView) findViewById(R.id.main_activity_status_text))
-                .setText("Просчитываем модель:\n");
+        TextView statusText = findViewById(R.id.main_activity_status_text);
+        statusText.setText("Просчитываем модель:");
+        statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
+        ((TextView) findViewById(R.id.main_activity_log_text))
+                .setText("");
 
         // блокируем спиннер
 
@@ -195,9 +262,7 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 super.run();
                 try {
-
                     detectImage();
-
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -352,17 +417,21 @@ public class MainActivity extends AppCompatActivity {
         sendTextToLog("Правое изображение просчитано\n");
 
 
-        sendTextToLog("Размер тензора = " + outTensorLeft.length + "\nЕвклидово расстояние: ");
-        sendTextToLog("" + calculateEuclidDistance(outTensorLeft, outTensorRight));
+        sendTextToLog("Размер тензора = " + outTensorLeft.length + "\n\nЕвклидово расстояние: ");
+        float distEuclid = calculateEuclidDistance(outTensorLeft, outTensorRight);
+        sendTextToLog("" + distEuclid);
 
 
         sendTextToLog("\nКосинусное расстояние: ");
-        sendTextToLog("" + calculateCosineDistance(outTensorLeft, outTensorRight));
+        float distCosine = calculateCosineDistance(outTensorLeft, outTensorRight);
+        sendTextToLog("" + distCosine);
 
 
         // сигнал для активности о завершении расчетов
-        modelCalculationLogging.sendEmptyMessage(778);
-
+        Message message = new Message();
+        message.what = 778;
+        message.obj = new PointF(distEuclid, distCosine);
+        modelCalculationLogging.sendMessage(message);
     }
 
     // обработка изображения в загруженной модели
@@ -386,6 +455,12 @@ public class MainActivity extends AppCompatActivity {
             default: { // 0
                 final Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
                 score_arr = outputTensor.getDataAsFloatArray();
+
+//               todo
+//                final Tensor outputTensor = module
+//                        .runMethod("feature_layer", IValue.from(inputTensor))
+//                        .toTensor();
+//                score_arr = outputTensor.getDataAsFloatArray();
 
                 // Fetch the index of the value with maximum score
                 float max_score = -Float.MAX_VALUE;
@@ -440,9 +515,11 @@ public class MainActivity extends AppCompatActivity {
             rightMid += tensorRight[dimensionI] * tensorRight[dimensionI];
         }
 
-        float divider = (float) (Math.sqrt(leftMid) * Math.sqrt(rightMid));
+        // перемножение корней
+        double divider = Math.sqrt(leftMid) * Math.sqrt(rightMid);
 
-        return divisible / divider;
+        // главное деление и получение из косинусного угла угол
+        return (float) (Math.acos(divisible / divider) * 180.0d / Math.PI);
     }
 
 
@@ -453,9 +530,9 @@ public class MainActivity extends AppCompatActivity {
      */
     public static String fetchModelFile(Context context, String assetName) throws IOException {
         File file = new File(context.getFilesDir(), assetName);
-        if (file.exists() && file.length() > 0) {
-            return file.getAbsolutePath();
-        }
+//        if (file.exists() && file.length() > 0) {
+//            return file.getAbsolutePath();
+//        }
 
         try (InputStream is = context.getAssets().open(assetName)) {
             try (OutputStream os = new FileOutputStream(file)) {

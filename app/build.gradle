@@ -46,4 +46,8 @@ dependencies {
     // additional library with utility functions for converting
     //   android.media.Image and android.graphics.Bitmap to tensors.
     implementation 'org.pytorch:pytorch_android_torchvision_lite:2.1.0'
+
+
+
+    implementation 'com.facebook.fbjni:fbjni-java-only:0.2.2'
 }

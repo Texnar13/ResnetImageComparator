@@ -4,6 +4,75 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:padding="10dp"
     tools:context=".SettingsActivity">
+
+    <TextView
+        android:id="@+id/activity_settings_header"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size"
+        android:gravity="center"
+        android:text="Выберите модель для настройки порогов:"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Spinner
+        android:id="@+id/activity_settings_model_selector"
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_header" />
+
+    <TextView
+        android:id="@+id/activity_settings_header_euclid"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size"
+        android:gravity="center"
+        android:text="Порог поевклидовому расстоянию:"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_model_selector" />
+
+    <EditText
+        android:id="@+id/activity_settings_input_euclid"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_size"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_header_euclid" />
+
+
+    <TextView
+        android:id="@+id/activity_settings_header_cosine"
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size"
+        android:gravity="center"
+        android:text="Порог поевклидовому расстоянию:"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_input_euclid" />
+
+    <EditText
+        android:id="@+id/activity_settings_input_cosine"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/button_size"
+        android:inputType="numberDecimal"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_header_cosine" />
+
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="@dimen/button_size"
+        android:gravity="center"
+        android:text="Значения сохраняются при выходе и выборе модели"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/activity_settings_input_cosine" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
