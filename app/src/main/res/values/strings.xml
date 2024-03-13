@@ -2,8 +2,9 @@
     <string name="app_name">ResnetImageComparator</string>
 
     <string-array name="modules_names">
-        <item>resnet18_traced (44.7Mb)</item>
-        <item>deeplabv3_scripted (160Mb)</item>
-        <item>mobilenet_v3_small (9.69Mb)</item>
+        <item>resnet18_traced (42.8 МБ)</item>
+        <item>resnet34_traced (81.4 МБ)</item>
+        <item>resnet101_traced (163 Mb)</item>
+        <item>mobilenet_v3_small (3,52 Mb)</item>
     </string-array>
 </resources>

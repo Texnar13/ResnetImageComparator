@@ -1,9 +1,5 @@
 package com.texnar13.resnetimagecomparator;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.NavUtils;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,7 +9,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.PointF;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.GradientDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -32,6 +27,9 @@ import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+
 import org.pytorch.IValue;
 import org.pytorch.LiteModuleLoader;
 import org.pytorch.Module;
@@ -43,8 +41,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.lang.ref.WeakReference;
-import java.util.Map;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -55,8 +51,9 @@ public class MainActivity extends AppCompatActivity {
     private int currentModule = 0;
     /*
      * 0 - resnet18_traced
-     * 1 - deeplabv3_scripted //deeplabv3_resnet101
-     * 2 - mobilenet_v3_small
+     * 1 - resnet34_traced
+     * 2 - resnet101_traced
+     * 3 - mobilenet_v3_small
      * */
 
     // поток обсчета модели
@@ -102,7 +99,8 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences preferences =
                 PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         // если поля еще не созданы, создаем
-        if (!preferences.contains(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[0])) {
+        if (!preferences.contains(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[
+                SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID.length - 1])) {
             SharedPreferences.Editor editor = preferences.edit();
             for (int i = 0; i < SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID.length; i++) {
                 editor.putFloat(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[i],
@@ -122,7 +120,6 @@ public class MainActivity extends AppCompatActivity {
                 Intent i = new Intent(
                         Intent.ACTION_PICK,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-
                 startActivityForResult(i, RESULT_LOAD_LEFT_IMAGE);
             }
         });
@@ -364,9 +361,13 @@ public class MainActivity extends AppCompatActivity {
         switch (currentModule) {
             case 1:
                 module = LiteModuleLoader.load(MainActivity.fetchModelFile(
-                        MainActivity.this, "deeplabv3_scripted.ptl"));
+                        MainActivity.this, "resnet34_traced.ptl"));
                 break;
             case 2:
+                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
+                        MainActivity.this, "resnet101_traced.ptl"));
+                break;
+            case 3:
                 module = LiteModuleLoader.load(MainActivity.fetchModelFile(
                         MainActivity.this, "mobilenet_v3_small.ptl"));
                 break;
@@ -437,46 +438,29 @@ public class MainActivity extends AppCompatActivity {
     // обработка изображения в загруженной модели
     float[] calculateTensor(int currentModule, Module module, Tensor inputTensor) {
 
-        final float[] score_arr;
-        switch (currentModule) {
-            case 1: {
-                Map<String, IValue> outTensors = module.forward(IValue.from(inputTensor)).toDictStringKey();
-                // the key "out" of the output tensor contains the semantic masks
-                // see https://pytorch.org/hub/pytorch_vision_deeplabv3_resnet101
-                final Tensor outputTensor = outTensors.get("out").toTensor();
-                score_arr = outputTensor.getDataAsFloatArray();
-                break;
-            }
-            case 2: {
-                final Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
-                score_arr = outputTensor.getDataAsFloatArray();
-                break;
-            }
-            default: { // 0
-                final Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
-                score_arr = outputTensor.getDataAsFloatArray();
 
-//               todo
+        final Tensor outputTensor = module.forward(IValue.from(inputTensor)).toTensor();
+        final float[] score_arr = outputTensor.getDataAsFloatArray();
+
+
+//               todo так и не заставил работать
+//                java.lang.IllegalArgumentException: Undefined method myfunc
+//            Это сегментация (работает с необрезанной сеткой просто, когда выходной тензор resnet18 = 1000)
 //                final Tensor outputTensor = module
-//                        .runMethod("feature_layer", IValue.from(inputTensor))
+//                        .runMethod("myfunc", IValue.from(inputTensor))
 //                        .toTensor();
 //                score_arr = outputTensor.getDataAsFloatArray();
-
-                // Fetch the index of the value with maximum score
-                float max_score = -Float.MAX_VALUE;
-                int ms_ix = -1;
-                for (int i = 0; i < score_arr.length; i++) {
-                    if (score_arr[i] > max_score) {
-                        max_score = score_arr[i];
-                        ms_ix = i;
-                    }
-                }
-
-                // вывод                      // Находим название в листе основанном на индексах
-                sendTextToLog("   Обнаружено: " + ModelClasses.MODEL_CLASSES[ms_ix] + "\n");
-                break;
-            }
-        }
+//                // Fetch the index of the value with maximum score
+//                float max_score = -Float.MAX_VALUE;
+//                int ms_ix = -1;
+//                for (int i = 0; i < score_arr.length; i++) {
+//                    if (score_arr[i] > max_score) {
+//                        max_score = score_arr[i];
+//                        ms_ix = i;
+//                    }
+//                }
+//                // вывод                      // Находим название в листе основанном на индексах
+//                sendTextToLog("   Обнаружено: " + ModelClasses.MODEL_CLASSES[ms_ix] + "\n");
 
         return score_arr;
     }
@@ -516,7 +500,7 @@ public class MainActivity extends AppCompatActivity {
         }
 
         // перемножение корней
-        double divider = Math.sqrt(leftMid) * Math.sqrt(rightMid);
+        float divider = (float) (Math.sqrt(leftMid) * Math.sqrt(rightMid));
 
         // главное деление и получение из косинусного угла угол
         return (float) (Math.acos(divisible / divider) * 180.0d / Math.PI);
