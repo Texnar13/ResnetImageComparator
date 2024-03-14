@@ -73,7 +73,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        menu.add("Настройки");
+        menu.add(R.string.main_activity_menu_settings);
         menu.getItem(0)
                 .setIcon(android.R.drawable.ic_menu_preferences)
                 .setOnMenuItemClickListener(menuItem -> {
@@ -164,8 +164,9 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        String text = "<font color=#cc2929>R</font> <font color=#00FF00>G</font> <font color=#0000FF>B</font>";
-        ((TextView) findViewById(R.id.main_activity_log_text)).setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
+//        Multicolored string
+//        String text = "<font color=#cc2929>R</font> <font color=#00FF00>G</font> <font color=#0000FF>B</font>";
+//        ((TextView) findViewById(R.id.main_activity_log_text)).setText(Html.fromHtml(text, Html.FROM_HTML_MODE_LEGACY));
 
 
         // обратная связь от потока
@@ -201,21 +202,22 @@ public class MainActivity extends AppCompatActivity {
 
                     // Вывод пользователю
                     TextView statusText = findViewById(R.id.main_activity_status_text);
-                    if (values.x > euclid && values.y > cosine) {
-                        // вне порога везде
-                        statusText.setText("Евклид.: Нет Сосинусн.: Нет");
+                    String near = getString(R.string.main_activity_answer_near);
+                    String far = getString(R.string.main_activity_answer_far);
+                    statusText.setText(getResources().getString(R.string.main_activity_answer_form,
+                            (values.x > euclid) ? (far) : (near),
+                            euclid,
+                            (values.y > cosine) ? (far) : (near),
+                            cosine
+                    ));
+
+                    if (values.x > euclid && values.y > cosine) {// вне порога везде
                         statusText.setTextColor(getResources().getColor(R.color.status_text_color_no_match));
-                    } else if (values.y > cosine) {
-                        // вне порога по косинусу
-                        statusText.setText("Евклид.: Да Сосинусн.: Нет");
+                    } else if (values.y > cosine) {// вне порога по косинусу
                         statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
-                    } else if (values.x > euclid) {
-                        // вне порога по евклиду
-                        statusText.setText("Евклид.: Нет Сосинусн.: Да");
+                    } else if (values.x > euclid) {// вне порога по евклиду
                         statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
-                    } else {
-                        // в пороге
-                        statusText.setText("Евклид.: Да Сосинусн.: Да");
+                    } else {// в пороге
                         statusText.setTextColor(getResources().getColor(R.color.status_text_color_its_match));
                     }
                 }
@@ -242,10 +244,9 @@ public class MainActivity extends AppCompatActivity {
 
         // чистим вывод
         TextView statusText = findViewById(R.id.main_activity_status_text);
-        statusText.setText("Просчитываем модель:");
+        statusText.setText(R.string.main_activity_status_text_start_calculating);
         statusText.setTextColor(getResources().getColor(R.color.status_text_color_calc));
-        ((TextView) findViewById(R.id.main_activity_log_text))
-                .setText("");
+        ((TextView) findViewById(R.id.main_activity_log_text)).setText(null);
 
         // блокируем спиннер
 
@@ -355,33 +356,21 @@ public class MainActivity extends AppCompatActivity {
 
     void detectImage() throws IOException {
 
-        sendTextToLog("Загрузка модели... ");
+        sendTextToLog(getResources().getString(R.string.main_activity_message1_load_model));
         // Загружаем файл с нейронкой
-        Module module;
-        switch (currentModule) {
-            case 1:
-                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
-                        MainActivity.this, "resnet34_traced.ptl"));
-                break;
-            case 2:
-                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
-                        MainActivity.this, "resnet101_traced.ptl"));
-                break;
-            case 3:
-                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
-                        MainActivity.this, "mobilenet_v3_small.ptl"));
-                break;
-            default: // 0
-                module = LiteModuleLoader.load(MainActivity.fetchModelFile(
-                        MainActivity.this, "resnet18_traced.ptl"));
-                break;
-        }
-        sendTextToLog("завершена\n");
+        String[] fileNames = getResources().getStringArray(R.array.modules_files_names);
+        Module module = LiteModuleLoader.load(
+                MainActivity.fetchModelFile(
+                        MainActivity.this,
+                        fileNames[(currentModule >= fileNames.length) ? (0) : (currentModule)]
+                )
+        );
+        sendTextToLog(getResources().getString(R.string.main_activity_message2_load_model_end));
 
 
         // ------------------------------------ Расчет тензоров ------------------------------------
 
-        sendTextToLog("Расчет тензоров\n");
+        sendTextToLog(getResources().getString(R.string.main_activity_message3_calc_tensor));
 
 
         // Ссылка на изображение в разметке
@@ -398,7 +387,7 @@ public class MainActivity extends AppCompatActivity {
         );
         // обработка изображения в загруженной модели
         final float[] outTensorLeft = calculateTensor(currentModule, module, inputTensorLeft);
-        sendTextToLog("Левое изображение просчитано\n");
+        sendTextToLog(getResources().getString(R.string.main_activity_message4_calc_tensor_left_over));
 
 
         // Ссылка на изображение в разметке
@@ -415,15 +404,15 @@ public class MainActivity extends AppCompatActivity {
         );
         // обработка изображения в загруженной модели
         final float[] outTensorRight = calculateTensor(currentModule, module, inputTensorRight);
-        sendTextToLog("Правое изображение просчитано\n");
+        sendTextToLog(getResources().getString(R.string.main_activity_message5_calc_tensor_right_over));
 
 
-        sendTextToLog("Размер тензора = " + outTensorLeft.length + "\n\nЕвклидово расстояние: ");
+        sendTextToLog(getResources().getString(R.string.main_activity_message6_tensor_size, outTensorLeft.length));
+        sendTextToLog(getResources().getString(R.string.main_activity_message7_euclidean_dist));
         float distEuclid = calculateEuclidDistance(outTensorLeft, outTensorRight);
-        sendTextToLog("" + distEuclid);
+        sendTextToLog("" + distEuclid+"\n");
 
-
-        sendTextToLog("\nКосинусное расстояние: ");
+        sendTextToLog(getResources().getString(R.string.main_activity_message8_cosine_dist));
         float distCosine = calculateCosineDistance(outTensorLeft, outTensorRight);
         sendTextToLog("" + distCosine);
 

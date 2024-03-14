@@ -45,6 +45,7 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         setContentView(R.layout.activity_settings);
+        setTitle(R.string.activity_settings_activity_title);
         Objects.requireNonNull(getSupportActionBar()).setDisplayHomeAsUpEnabled(true);
 
         // Спиннер выбора модели
@@ -105,9 +106,9 @@ public class SettingsActivity extends AppCompatActivity {
             editor.putFloat(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_EUCLID[currentModule], euclid);
             editor.putFloat(SettingsSharedPrefsContract.PREFS_FLOAT_THRESHOLD_COSINE[currentModule], cosine);
             editor.apply();
-            Toast.makeText(this, "Сохранено", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.activity_settings_toast_saved, Toast.LENGTH_SHORT).show();
         } catch (NumberFormatException e) {
-            Toast.makeText(this, "Ошибка, остались старые значения", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, R.string.activity_settings_toast_error, Toast.LENGTH_SHORT).show();
         }
     }
 

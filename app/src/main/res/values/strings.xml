@@ -1,10 +1,54 @@
 <resources>
     <string name="app_name">ResnetImageComparator</string>
 
+
+    <!-- MainActivity -->
+
     <string-array name="modules_names">
         <item>resnet18_traced (42.8 МБ)</item>
         <item>resnet34_traced (81.4 МБ)</item>
         <item>resnet101_traced (163 Mb)</item>
         <item>mobilenet_v3_small (3,52 Mb)</item>
     </string-array>
+    <string-array name="modules_files_names">
+        <item>resnet18_traced.ptl</item>
+        <item>resnet34_traced.ptl</item>
+        <item>resnet101_traced.ptl</item>
+        <item>mobilenet_v3_small.ptl</item>
+    </string-array>
+
+    <string name="main_activity_answer_form">По евклидовой мере: %s%f )\nПо косинусной мере: %s%f )</string>
+    <string name="main_activity_answer_near">Близки ( =&lt; </string>
+    <string name="main_activity_answer_far">Далеки ( &gt; </string>
+
+    <string name="main_activity_menu_settings">Настройки порогов</string>
+
+    <string name="main_activity_button_start">Начать расчет</string>
+    <string name="main_activity_button_select_image">Выбрать изображение</string>
+
+    <string name="main_activity_status_start">Выберите два изображения для сравнения</string>
+    <string name="main_activity_status_text_start_calculating">Просчитываем модель:</string>
+
+    <string name="main_activity_message1_load_model">Загрузка модели… </string>
+    <string name="main_activity_message2_load_model_end">завершена\n</string>
+    <string name="main_activity_message3_calc_tensor">Расчет тензоров\n</string>
+    <string name="main_activity_message4_calc_tensor_left_over">Левое изображение просчитано\n</string>
+    <string name="main_activity_message5_calc_tensor_right_over">Правое изображение просчитано\n</string>
+    <string name="main_activity_message6_tensor_size">Размер тензора = %d\n\n</string>
+    <string name="main_activity_message7_euclidean_dist">Евклидово расстояние: </string>
+    <string name="main_activity_message8_cosine_dist">Косинусное расстояние: </string>
+
+
+    <!-- SettingsActivity -->
+
+    <string name="activity_settings_activity_title">Настройка порогов</string>
+    <string name="activity_settings_select_model">Выберите модель для настройки порогов:</string>
+    <string name="activity_settings_title_euclid">Порог по евклидовому расстоянию:</string>
+    <string name="activity_settings_title_cosine">Порог по косинусному расстоянию:</string>
+    <string name="activity_settings_help">Значения сохраняются при выходе или выборе модели</string>
+    <string name="activity_settings_toast_saved">Сохранено</string>
+    <string name="activity_settings_toast_error">Ошибка, остались старые значения</string>
+
+
+
 </resources>

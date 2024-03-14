@@ -32,7 +32,7 @@
         android:id="@+id/main_activity_img_left_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выбрать изображение"
+        android:text="@string/main_activity_button_select_image"
         app:layout_constraintBottom_toBottomOf="@+id/main_activity_img_left"
         app:layout_constraintEnd_toEndOf="@+id/main_activity_img_left"
         app:layout_constraintStart_toStartOf="@+id/main_activity_img_left"
@@ -55,7 +55,7 @@
         android:id="@+id/main_activity_img_right_hint"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Выбрать изображение"
+        android:text="@string/main_activity_button_select_image"
         app:layout_constraintBottom_toBottomOf="@+id/main_activity_img_right"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="@+id/main_activity_guideline"
@@ -84,7 +84,7 @@
 
     <Button
         android:id="@+id/main_activity_start_button"
-        android:text="Начать расчет"
+        android:text="@string/main_activity_button_start"
         android:layout_width="wrap_content"
         android:layout_height="50dp"
         app:layout_constraintBottom_toTopOf="@+id/main_activity_guide_h_top"
@@ -98,8 +98,7 @@
         android:layout_height="wrap_content"
         app:layout_constrainedHeight="true"
         android:padding="5dp"
-        android:singleLine="true"
-        android:text="Статус: выберите два изображения для сравнения"
+        android:text="@string/main_activity_status_start"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/main_activity_guide_h_bottom" />

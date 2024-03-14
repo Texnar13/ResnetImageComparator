@@ -12,7 +12,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/button_size"
         android:gravity="center"
-        android:text="Выберите модель для настройки порогов:"
+        android:text="@string/activity_settings_select_model"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/button_size"
         android:gravity="center"
-        android:text="Порог поевклидовому расстоянию:"
+        android:text="@string/activity_settings_title_euclid"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activity_settings_model_selector" />
@@ -50,7 +50,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/button_size"
         android:gravity="center"
-        android:text="Порог поевклидовому расстоянию:"
+        android:text="@string/activity_settings_title_cosine"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/activity_settings_input_euclid" />
@@ -69,7 +69,7 @@
         android:layout_width="wrap_content"
         android:layout_height="@dimen/button_size"
         android:gravity="center"
-        android:text="Значения сохраняются при выходе и выборе модели"
+        android:text="@string/activity_settings_help"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
