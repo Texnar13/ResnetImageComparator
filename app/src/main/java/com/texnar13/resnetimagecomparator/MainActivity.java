@@ -503,7 +503,8 @@ public class MainActivity extends AppCompatActivity {
         float divider = (float) (Math.sqrt(leftMid) * Math.sqrt(rightMid));
 
         // главное деление и получение из косинусного угла угол
-        return (float) (Math.acos(divisible / divider) * 180.0d / Math.PI);
+        //return (float) (Math.acos(divisible / divider) * 180.0d / Math.PI);
+        return 1 - divisible / divider;
     }
 
 
