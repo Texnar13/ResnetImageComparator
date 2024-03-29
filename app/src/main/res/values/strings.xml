@@ -9,6 +9,7 @@
         <item>resnet34_traced (81.4 МБ)</item>
         <item>resnet101_traced (163 Mb)</item>
         <item>mobilenet_v3_small (3,52 Mb)</item>
+
     </string-array>
     <string-array name="modules_files_names">
         <item>resnet18_traced.ptl</item>
